@@ -14,7 +14,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
+    return ChangeNotifierProvide(
       create: (context) => ListaSpesa(),
       child: MaterialApp(
         title: 'MiaApp',
