@@ -3,13 +3,12 @@ import 'package:flutter_application_1/product.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
 import 'package:provider/provider.dart';
 
-class SpesaScreen extends StatefulWidget{
+class SpesaScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _SpesaScreenState();
 }
 
-class _SpesaScreenState extends State<SpesaScreen>{
-
+class _SpesaScreenState extends State<SpesaScreen> {
 /*classe che viene utilizzata per gestire e controllare il testo in un widget 'TextField' o 'TextFormField'; questa classe fornisce metodi per accedere e modificare il testo all'interno del campo di testo
 */
   TextEditingController nomeController = TextEditingController();
@@ -17,26 +16,29 @@ class _SpesaScreenState extends State<SpesaScreen>{
 
   String unitaSelezionata = '';
 
-  void aggiungiProdotto(){
+  void aggiungiProdotto() {
     String nome = nomeController.text;
     double quantita = double.parse(quantitaController.text);
 
-    if (nome.isNotEmpty && quantita > 0 && unitaSelezionata.isNotEmpty){
-      Product nuovoProdotto = Product(name: nome, quantita: quantita, unit: unitaSelezionata);
+    if (nome.isNotEmpty && quantita > 0 && unitaSelezionata.isNotEmpty) {
+      Product nuovoProdotto =
+          Product(name: nome, quantita: quantita, unit: unitaSelezionata);
 
-    //aggiunge un nuovo prodotto inerente al contesto attualmente in uso
-      Provider.of<ShoppingListProvider>(context, listen: false).aggiungiProdotto(nuovoProdotto);
+      //aggiunge un nuovo prodotto inerente al contesto attualmente in uso
+      Provider.of<ShoppingListProvider>(context, listen: false)
+          .aggiungiProdotto(nuovoProdotto);
 
-      nomeController.clear();  //metodo utilizzato per cancellare il testo
+      nomeController.clear(); //metodo utilizzato per cancellare il testo
       quantitaController.clear();
       unitaSelezionata = '';
     }
-
   }
 
   @override
-  Widget build(BuildContext context) { //BuildContext context --> contesto corrente in cui viene costruito il widget; il metodo build deve restituire un widget che rappresenta la rappresentazione visuale del widget corrente
-    return Scaffold( //fornisce struttura di base
+  Widget build(BuildContext context) {
+    //BuildContext context --> contesto corrente in cui viene costruito il widget; il metodo build deve restituire un widget che rappresenta la rappresentazione visuale del widget corrente
+    return Scaffold(
+      //fornisce struttura di base
       appBar: AppBar(
         title: Text('Lista della spesa'),
         centerTitle: true,
@@ -63,39 +65,52 @@ class _SpesaScreenState extends State<SpesaScreen>{
                 Il widget all'interno di expanded si espanderà o si contrarrà a seconda dello spazio disponibile
                 */
                 Expanded(
-                  child: TextField(
-                    controller: nomeController,
-                    decoration: InputDecoration(labelText: 'Nome prodotto'),
-                  )),
+                    child: TextField(
+                  controller: nomeController,
+                  decoration: InputDecoration(labelText: 'Nome prodotto'),
+                )),
                 SizedBox(
                   width: 10.0,
                 ),
                 Expanded(
-                  child: TextField(
-                    controller: quantitaController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(labelText: 'Quantità'),
-                  )),
+                    child: TextField(
+                  controller: quantitaController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: 'Quantità'),
+                )),
                 SizedBox(
                   width: 10.0,
                 ),
                 /*
-                
+                dropdownButton utilizzato per creare un menu a tendina
+                L'elenco delle opzioni è fornito attraverso la proprietà items che contiene un elenco di widget DropdownMenuItem.
                 */
                 DropdownButton<String>(
-                  value: unitaSelezionata, 
-                  onChanged: (String? nuovoValore){
+                  value: unitaSelezionata,
+                  onChanged: (String? nuovoValore) {
                     setState(() {
                       unitaSelezionata = nuovoValore!;
                     });
                   },
-                  items: [],)
+                  items: <String>['', 'g', 'kg', 'l']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text('value'),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(width: 10.0),
+                ElevatedButton(
+                  onPressed: aggiungiProdotto,
+                  child: Text('Aggiungi'),
+                ),
               ],
             ),
-          )
+          ),
+          Expanded(child: child)
         ],
       ),
-    )
+    );
   }
-
 }
