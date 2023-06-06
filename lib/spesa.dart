@@ -45,7 +45,6 @@ class ListaSpesaScreen extends StatelessWidget {
                   TextEditingController();
               final TextEditingController _alternativaController =
                   TextEditingController();
-
               return AlertDialog(
                 title: Text('Aggiungi Prodotto'),
                 content: Column(
