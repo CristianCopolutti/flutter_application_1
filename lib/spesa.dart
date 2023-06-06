@@ -50,6 +50,7 @@ class ListaSpesaScreen extends StatelessWidget {
                 title: Text('Aggiungi Prodotto'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     TextField(
                       controller: _descrizioneController,
