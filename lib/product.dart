@@ -1,9 +1,12 @@
 class Product {
   String name;
-  double quantity;
+  double quantita;
+  String unit;
+  bool comprato;
 
-  Product({
-    required this.name,
-    required this.quantity,
-  });
+  Product(
+      {required this.name,
+      required this.quantita,
+      required this.unit,
+      this.comprato = false});
 }
