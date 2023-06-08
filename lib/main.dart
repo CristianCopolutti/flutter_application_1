@@ -8,21 +8,25 @@ import 'spesa.dart';
 import 'storico.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ShoppingListProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ListaSpesa(),
-      child: MaterialApp(
-        title: 'MiaApp',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: MyHomePage(),
+    return MaterialApp(
+      title: 'MiaApp',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      home: MyHomePage(),
     );
   }
 }
@@ -36,7 +40,7 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State {
   PageController pageController = PageController();
-  List<Widget> pages = [HomePage(), Dispensa(), ListaSpesaScreen(), Storico()];
+  List<Widget> pages = [HomePage(), Dispensa(), SpesaScreen(), Storico()];
 
   int selectIndex = 0;
 

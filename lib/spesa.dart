@@ -22,7 +22,7 @@ class _SpesaScreenState extends State<SpesaScreen> {
 
     if (nome.isNotEmpty && quantita > 0 && unitaSelezionata.isNotEmpty) {
       Product nuovoProdotto =
-          Product(name: nome, quantita: quantita, unit: unitaSelezionata);
+          Product(nome: nome, quantita: quantita, unit: unitaSelezionata);
 
       //aggiunge un nuovo prodotto inerente al contesto attualmente in uso
       Provider.of<ShoppingListProvider>(context, listen: false)
@@ -108,7 +108,76 @@ class _SpesaScreenState extends State<SpesaScreen> {
               ],
             ),
           ),
-          Expanded(child: child)
+          Expanded(
+            child: Consumer<ShoppingListProvider>(
+              builder: (context, provider, _) {
+                /*
+                ListView.builder è un widget che permette di creare una vista di un elenco scorrevole con contenuto dinamico; 
+                Richiede parametro 'builder', che è una funzione di callback che costruisce gli elementi individuali dell'elenco in modo dinamico.
+                */
+                return Scrollbar(
+                  child: ListView.builder(
+                    itemCount: provider.listaProdottiSpesa.length,
+                    /*
+                    la funzione itemBuilder si occupa di costruire ogni singolo elemento; viene chiamata per ciascun elemento nell'intervallo degli elementi visibili
+                    */
+                    itemBuilder: (context, index) {
+                      final prodotto = provider.listaProdottiSpesa[index];
+                      /*
+                      la funzione Dismissible permette di aggiungere una funzione di 'dismiss' a un altro widget; consente all'utente di trascinare o fare uno swipe su un elemento per rimuoverlo dalla vista.
+                      */
+                      return Dismissible(
+                        //la chiave identifica in modo univoco l'elemento
+                        key: Key(prodotto.nome),
+                        /*
+                          Il widget container serve per modificare la presentazione di altri widget; serve per fornire un rettangolo visivo
+                        */
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                        ),
+                        /*
+                        Imposto la direzione dello swap; in questo caso dalla fine all'inizio
+                        */
+                        direction: DismissDirection.endToStart,
+                        /*
+                        onDismissed: di solito è una funzione che viene utilizzata per gestire il comportamento quando l'elemento viene rimosso
+                        */
+                        onDismissed: (direction) {
+                          provider.removeProduct(index);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Prodotto eliminato'),
+                            ),
+                          );
+                        },
+                        /*
+                        ListTile è un widget che rappresenta un elemento di un elenco; 
+                        */
+                        child: ListTile(
+                          title: Text(
+                              '${prodotto.nome} ${prodotto.quantita.toStringAsFixed(2)} ${prodotto.unit}'),
+                          trailing: Checkbox(
+                            value: prodotto.comprato,
+                            onChanged: (bool? nuovoValore) {
+                              setState(() {
+                                prodotto.comprato = nuovoValore!;
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

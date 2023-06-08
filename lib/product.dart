@@ -1,11 +1,11 @@
 class Product {
-  String name;
+  String nome;
   double quantita;
   String unit;
   bool comprato;
 
   Product(
-      {required this.name,
+      {required this.nome,
       required this.quantita,
       required this.unit,
       this.comprato = false});
