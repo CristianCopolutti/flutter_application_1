@@ -42,7 +42,7 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State {
   PageController pageController = PageController();
-  List<Widget> pages = [HomePage(), Dispensa(), SpesaScreen(), Storico()];
+  List<Widget> pages = [HomePage(), SpesaScreen(), Dispensa(), Storico()];
 
   int selectIndex = 0;
 
@@ -74,12 +74,12 @@ class MyHomePageState extends State {
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fastfood),
-            label: "Dispensa",
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: "Spesa",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.fastfood),
+            label: "Dispensa",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.storage_rounded),
