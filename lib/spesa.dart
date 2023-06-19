@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/product.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
@@ -9,176 +11,188 @@ class SpesaScreen extends StatefulWidget {
 }
 
 class _SpesaScreenState extends State<SpesaScreen> {
-/*classe che viene utilizzata per gestire e controllare il testo in un widget 'TextField' o 'TextFormField'; questa classe fornisce metodi per accedere e modificare il testo all'interno del campo di testo
-*/
-  TextEditingController nomeController = TextEditingController();
-  TextEditingController quantitaController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    final shoppingItemList = Provider.of<ShoppingListProvider>(context);
+    final shoppingItems = shoppingItemList.listaProdottiSpesa;
 
-  String unitaSelezionata = '';
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista della Spesa'),
+      ),
+      body: ListView.builder(
+        itemCount: shoppingItems.length + 1, // Add 1 for the header row
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            // Header row
+            return Padding(
+              padding: EdgeInsets.only(left: 16.0), // Add left padding
+              child: DataTable(
+                columnSpacing: 10.0,
+                columns: const <DataColumn>[
+                  DataColumn(
+                    label: Text('Prodotto'),
+                  ),
+                  DataColumn(
+                    label: Text('Quantità'),
+                  ),
+                  DataColumn(
+                    label: Text('Unità'),
+                  ),
+                  DataColumn(
+                    label: Text(''),
+                  ),
+                ],
+                rows: [],
+              ),
+            );
+          }
 
-  void aggiungiProdotto() {
-    String nome = nomeController.text;
-    double quantita = double.parse(quantitaController.text);
+          final item = shoppingItems[index - 1];
 
-    if (nome.isNotEmpty && quantita > 0 && unitaSelezionata.isNotEmpty) {
-      Product nuovoProdotto =
-          Product(nome: nome, quantita: quantita, unit: unitaSelezionata);
-
-      //aggiunge un nuovo prodotto inerente al contesto attualmente in uso
-      Provider.of<ShoppingListProvider>(context, listen: false)
-          .aggiungiProdotto(nuovoProdotto);
-
-      nomeController.clear(); //metodo utilizzato per cancellare il testo
-      quantitaController.clear();
-      unitaSelezionata = '';
-    }
+          return Dismissible(
+            key: UniqueKey(),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 16.0),
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            onDismissed: (direction) {
+              setState(() {
+                shoppingItemList.removeProduct(index - 1);
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Prodotto eliminato'),
+                ),
+              );
+            },
+            child: Card(
+              child: ListTile(
+                title: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        item.descrizioneProdotto,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.0),
+                    Expanded(
+                      flex: 1,
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        initialValue: item.quantita,
+                        onChanged: (value) {
+                          setState(() {
+                            item.quantita = value;
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: DropdownButton<String>(
+                        value: item.unita,
+                        onChanged: (newValue) {
+                          setState(() {
+                            item.unita = newValue!;
+                          });
+                        },
+                        items: <String>['', 'g', 'kg', 'l'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Checkbox(
+                        value: item.comprato ?? false,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            item.comprato = newValue!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddItemScreen(aggiungiProdotto: (item) {
+                shoppingItemList.aggiungiProdotto(item);
+              }),
+            ),
+          );
+        },
+        child: Icon(Icons.add),
+      ),
+    );
   }
+}
+
+class AddItemScreen extends StatelessWidget {
+  /*
+    dichiaro una variabile aggiungiProdotto di tipo 'Function' che accetta parametro in ingresso di tipo Product;
+    In questo caso, aggiungiProdotto è una callback o una funzione che può essere passata come argomento a un altro widget o componente.
+    La variabile aggiungiProdotto viene utilizzata come parametro nel costruttore del widget AddItemScreen; permette di passare una funzione che verrà chiamata quando viene premuto il pulsante "Aggiungi".
+  */
+
+  final Function(Product) aggiungiProdotto;
+
+  AddItemScreen({required this.aggiungiProdotto});
+
+  final TextEditingController _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    //BuildContext context --> contesto corrente in cui viene costruito il widget; il metodo build deve restituire un widget che rappresenta la rappresentazione visuale del widget corrente
     return Scaffold(
-      //fornisce struttura di base
       appBar: AppBar(
-        title: Text('Lista della spesa'),
-        centerTitle: true,
+        title: Text('Aggiungi Prodotto'),
       ),
-      //body --> corpo principale dell'applicazione, contiene contenuto principale come testo, immagini, elenchi o altri widget
-      /* column: widget che consente di organizzare i suoi widget figlio in una colonna verticale, uno sopra l'altro; utile quando si vuole impilare widget verticalmente all'interno di un layout
-      */
-      body: Column(
-        /*children viene utilizzato per definire un elenco di widget figlio da visualizzare o posizionare all'interno del widget padre; accetta un elenco di widget come valore
-        */
-        children: [
-          /*
-          widget Padding utilizzato per aggiungere spaziatura interna ai suoi widget figlio; consente di impostare uno spazio vuoto uniforme o specifico sui 4 lati dei widget figlio
-          */
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            /*
-            widget row viene utilizzato per organizzare i widget figlio in una riga orizzontale, allineandoli uno accanto all'altro
-            */
-            child: Row(
-              children: [
-                /*
-                widget expanded --> utilizzato per definire un widget che si espande per occupare lo spazio disponibile all'interno del widget genitore.
-                Il widget all'interno di expanded si espanderà o si contrarrà a seconda dello spazio disponibile
-                */
-                Expanded(
-                    child: TextField(
-                  controller: nomeController,
-                  decoration: InputDecoration(labelText: 'Nome prodotto'),
-                )),
-                SizedBox(
-                  width: 10.0,
-                ),
-                Expanded(
-                    child: TextField(
-                  controller: quantitaController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'Quantità'),
-                )),
-                SizedBox(
-                  width: 10.0,
-                ),
-                /*
-                dropdownButton utilizzato per creare un menu a tendina
-                L'elenco delle opzioni è fornito attraverso la proprietà items che contiene un elenco di widget DropdownMenuItem.
-                */
-                DropdownButton<String>(
-                  value: unitaSelezionata,
-                  onChanged: (String? nuovoValore) {
-                    setState(() {
-                      unitaSelezionata = nuovoValore!;
-                    });
-                  },
-                  items: <String>['', 'g', 'kg', 'l']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text('value'),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(width: 10.0),
-                ElevatedButton(
-                  onPressed: aggiungiProdotto,
-                  child: Text('Aggiungi'),
-                ),
-              ],
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _textController,
+              decoration: InputDecoration(labelText: 'Prodotto'),
             ),
-          ),
-          Expanded(
-            child: Consumer<ShoppingListProvider>(
-              builder: (context, provider, _) {
-                /*
-                ListView.builder è un widget che permette di creare una vista di un elenco scorrevole con contenuto dinamico; 
-                Richiede parametro 'builder', che è una funzione di callback che costruisce gli elementi individuali dell'elenco in modo dinamico.
-                */
-                return Scrollbar(
-                  child: ListView.builder(
-                    itemCount: provider.listaProdottiSpesa.length,
-                    /*
-                    la funzione itemBuilder si occupa di costruire ogni singolo elemento; viene chiamata per ciascun elemento nell'intervallo degli elementi visibili
-                    */
-                    itemBuilder: (context, index) {
-                      final prodotto = provider.listaProdottiSpesa[index];
-                      /*
-                      la funzione Dismissible permette di aggiungere una funzione di 'dismiss' a un altro widget; consente all'utente di trascinare o fare uno swipe su un elemento per rimuoverlo dalla vista.
-                      */
-                      return Dismissible(
-                        //la chiave identifica in modo univoco l'elemento
-                        key: Key(prodotto.nome),
-                        /*
-                          Il widget container serve per modificare la presentazione di altri widget; serve per fornire un rettangolo visivo
-                        */
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                          ),
-                        ),
-                        /*
-                        Imposto la direzione dello swap; in questo caso dalla fine all'inizio
-                        */
-                        direction: DismissDirection.endToStart,
-                        /*
-                        onDismissed: di solito è una funzione che viene utilizzata per gestire il comportamento quando l'elemento viene rimosso
-                        */
-                        onDismissed: (direction) {
-                          provider.removeProduct(index);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Prodotto eliminato'),
-                            ),
-                          );
-                        },
-                        /*
-                        ListTile è un widget che rappresenta un elemento di un elenco; 
-                        */
-                        child: ListTile(
-                          title: Text(
-                              '${prodotto.nome} ${prodotto.quantita.toStringAsFixed(2)} ${prodotto.unit}'),
-                          trailing: Checkbox(
-                            value: prodotto.comprato,
-                            onChanged: (bool? nuovoValore) {
-                              setState(() {
-                                prodotto.comprato = nuovoValore!;
-                              });
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
+            ElevatedButton(
+              onPressed: () {
+                final String prodotto = _textController.text.trim();
+                if (prodotto.isNotEmpty) {
+                  aggiungiProdotto(Product(descrizioneProdotto: prodotto));
+                }
+                Navigator.pop(context);
               },
-            ),
-          ),
-        ],
+              child: Text('Aggiungi'),
+            )
+          ],
+        ),
       ),
     );
   }

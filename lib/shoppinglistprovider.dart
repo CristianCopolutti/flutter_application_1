@@ -17,7 +17,7 @@ class ShoppingListProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeProduct(int index) {
+  void removeProduct(index) {
     listaProdottiSpesa.removeAt(index);
     notifyListeners();
   }
