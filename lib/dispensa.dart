@@ -109,10 +109,10 @@ class _DispensaScreenState extends State<DispensaScreen> {
       MaterialPageRoute(
         builder: (context) => SchermataModificaProdotto(
           item: prodotto,
-          salva: (elementoModificato) {
+          onSave: (elementoModificato) {
             _aggiornaElemento(prodotto, elementoModificato);
           },
-          elimina: () {
+          onDelete: () {
             _cancellaElemento(prodotto);
           },
         ),
@@ -137,15 +137,92 @@ class _DispensaScreenState extends State<DispensaScreen> {
 
 class SchermataModificaProdotto extends StatefulWidget {
   final ProdottoDispensa item;
-  final Function(ProdottoDispensa) salva;
-  final Function elimina;
+  final Function(ProdottoDispensa) onSave;
+  final Function() onDelete;
 
   SchermataModificaProdotto(
-      {required this.item, required this.salva, required this.elimina});
+      {required this.item, required this.onSave, required this.onDelete});
 
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    throw UnimplementedError();
+  _SchermataModificaProdottoState createState() =>
+      _SchermataModificaProdottoState();
+}
+
+class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
+  TextEditingController _dataScadenzaController = TextEditingController();
+  TextEditingController _luogoAcquistoController = TextEditingController();
+  TextEditingController _quantitaController = TextEditingController();
+  TextEditingController _prezzoAcquistoController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _dataScadenzaController.text = widget.item.dataScadenza ?? '';
+    _luogoAcquistoController.text = widget.item.luogoAcquisto ?? '';
+    _quantitaController.text = widget.item.quantitaupdate ?? '';
+    _prezzoAcquistoController.text = widget.item.prezzoAcquisto ?? '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Modifica Prodotto'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text('Descrizione: ${widget.item.descrizioneProdotto}'),
+            TextFormField(
+              controller: _dataScadenzaController,
+              decoration: InputDecoration(labelText: 'Data di scadenza'),
+            ),
+            TextFormField(
+              controller: _luogoAcquistoController,
+              decoration: InputDecoration(labelText: 'Luogo di acquisto'),
+            ),
+            TextFormField(
+              controller: _quantitaController,
+              decoration: InputDecoration(labelText: 'Quantità'),
+            ),
+            TextFormField(
+              controller: _prezzoAcquistoController,
+              decoration: InputDecoration(labelText: 'Prezzo di acquisto'),
+            ),
+            SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: _salvaModifiche,
+                  child: Text('Salva'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    widget.onDelete();
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: Text('Annulla'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _salvaModifiche() {
+    final elementoModificato = ProdottoDispensa(
+      descrizioneProdotto: widget.item.descrizioneProdotto,
+      dataScadenza: _dataScadenzaController.text,
+      luogoAcquisto: _luogoAcquistoController.text,
+      quantitaupdate: _quantitaController.text,
+      prezzoAcquisto: _prezzoAcquistoController.text,
+    );
+    widget.onSave(elementoModificato);
+    Navigator.pop(context);
   }
 }
