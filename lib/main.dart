@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
 import 'package:provider/provider.dart';
-
 import 'homepage.dart';
 import 'dispensa.dart';
 import 'spesa.dart';
@@ -42,7 +41,7 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State {
   PageController pageController = PageController();
-  List<Widget> pages = [HomePage(), SpesaScreen(), Dispensa(), Storico()];
+  List<Widget> pages = [HomePage(), SpesaScreen(), DispensaScreen(), Storico()];
 
   int selectIndex = 0;
 

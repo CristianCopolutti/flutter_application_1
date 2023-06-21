@@ -31,7 +31,8 @@ class _SpesaScreenState extends State<SpesaScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista della Spesa'),
+        title: Text('LISTA DELLA SPESA'),
+        centerTitle: true,
       ),
       /*
       Nel body inserisco una lista scrollabile;
