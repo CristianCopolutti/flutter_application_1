@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/prodottoDispensa.dart';
+import 'package:flutter_application_1/prodottodispensaprovider.dart';
 import 'package:flutter_application_1/product.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 
@@ -9,8 +10,6 @@ class DispensaScreen extends StatefulWidget {
 }
 
 class _DispensaScreenState extends State<DispensaScreen> {
-  List<ProdottoDispensa> prodottiDispensa = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,9 +18,9 @@ class _DispensaScreenState extends State<DispensaScreen> {
         centerTitle: true,
       ),
       body: ListView.builder(
-        itemCount: prodottiDispensa.length,
+        itemCount: ProdottoDispensaProvider.prodottiDispensa.length,
         itemBuilder: (context, index) {
-          final item = prodottiDispensa[index];
+          final item = ProdottoDispensaProvider.prodottiDispensa[index];
           return Card(
             child: ListTile(
               title: Row(
@@ -99,7 +98,7 @@ class _DispensaScreenState extends State<DispensaScreen> {
 
   void _salvaProdotto(ProdottoDispensa nuovoProdotto) {
     setState(() {
-      prodottiDispensa.add(nuovoProdotto);
+      ProdottoDispensaProvider.prodottiDispensa.add(nuovoProdotto);
     });
   }
 
@@ -111,6 +110,11 @@ class _DispensaScreenState extends State<DispensaScreen> {
           item: prodotto,
           onSave: (elementoModificato) {
             _aggiornaElemento(prodotto, elementoModificato);
+            if (elementoModificato.comprato) {
+              _aggiungiProdottoDispensa(elementoModificato);
+            } else {
+              _rimuoviProdottoDispensa(elementoModificato);
+            }
           },
           onDelete: () {
             _cancellaElemento(prodotto);
@@ -120,17 +124,30 @@ class _DispensaScreenState extends State<DispensaScreen> {
     );
   }
 
+  void _aggiungiProdottoDispensa(ProdottoDispensa prodotto) {
+    setState(() {
+      ProdottoDispensaProvider.prodottiDispensa.add(prodotto);
+    });
+  }
+
+  void _rimuoviProdottoDispensa(ProdottoDispensa prodotto) {
+    setState(() {
+      ProdottoDispensaProvider.prodottiDispensa.remove(prodotto);
+    });
+  }
+
   void _aggiornaElemento(
       ProdottoDispensa vecchioProdotto, ProdottoDispensa nuovoProdotto) {
     setState(() {
-      final index = prodottiDispensa.indexOf(vecchioProdotto);
-      prodottiDispensa[index] = nuovoProdotto;
+      final index =
+          ProdottoDispensaProvider.prodottiDispensa.indexOf(vecchioProdotto);
+      ProdottoDispensaProvider.prodottiDispensa[index] = nuovoProdotto;
     });
   }
 
   void _cancellaElemento(ProdottoDispensa prodotto) {
     setState(() {
-      prodottiDispensa.remove(prodotto);
+      ProdottoDispensaProvider.prodottiDispensa.remove(prodotto);
     });
   }
 }

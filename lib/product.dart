@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 /*
 La classe Product serve per memorizzare i prodotti che l'utente inserisce manualmente all'interno della lista della spesa;
 - descrizioneProdotto rappresenta il testo del prodotto

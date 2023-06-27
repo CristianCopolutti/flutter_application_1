@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/prodottoDispensa.dart';
+import 'package:flutter_application_1/prodottodispensaprovider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_1/product.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
@@ -117,9 +119,7 @@ class _SpesaScreenState extends State<SpesaScreen> {
                         keyboardType: TextInputType.number,
                         initialValue: item.quantita,
                         onChanged: (value) {
-                          setState(() {
-                            item.quantita = value;
-                          });
+                          item.quantita = value;
                         },
                       ),
                     ),
@@ -144,9 +144,10 @@ class _SpesaScreenState extends State<SpesaScreen> {
                       flex: 1,
                       child: Checkbox(
                         value: item.comprato ?? false,
-                        onChanged: (bool? newValue) {
+                        onChanged: (value) {
                           setState(() {
-                            item.comprato = newValue!;
+                            item.comprato = value ?? false;
+                            aggiungiProdottoDispensa(item);
                           });
                         },
                       ),
@@ -174,6 +175,19 @@ class _SpesaScreenState extends State<SpesaScreen> {
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  void aggiungiProdottoDispensa(Product prodotto) {
+    setState(() {
+      if (prodotto.comprato) {
+        final prodottoDispensa =
+            ProdottoDispensa(descrizioneProdotto: prodotto.descrizioneProdotto);
+        ProdottoDispensaProvider.prodottiDispensa.add(prodottoDispensa);
+      } else {
+        ProdottoDispensaProvider.prodottiDispensa.removeWhere((element) =>
+            element.descrizioneProdotto == prodotto.descrizioneProdotto);
+      }
+    });
   }
 }
 

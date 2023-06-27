@@ -21,4 +21,9 @@ class ShoppingListProvider extends ChangeNotifier {
     listaProdottiSpesa.removeAt(index);
     notifyListeners();
   }
+
+  void setProdottoAcquistato(int index, bool acquistato) {
+    listaProdottiSpesa[index].comprato = acquistato;
+    notifyListeners();
+  }
 }
