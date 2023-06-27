@@ -32,8 +32,8 @@ class HomePage extends StatelessWidget {
                 state?.onItemTap(1);
               },
               child: Container(
-                width: 400.0,
-                height: 270.0,
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.3,
                 child: Card(
                   elevation: 4.0,
                   shape: RoundedRectangleBorder(
