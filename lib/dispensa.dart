@@ -1,26 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/prodottoDispensa.dart';
 import 'package:flutter_application_1/prodottodispensaprovider.dart';
+import 'package:flutter_application_1/prodottodispensaprovider.dart';
 import 'package:flutter_application_1/product.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
+import 'package:provider/provider.dart';
 
 class DispensaScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _DispensaScreenState();
 }
 
+/*
+class _DispensaScreenState: gestisce la schermata Dispensa
+*/
+
 class _DispensaScreenState extends State<DispensaScreen> {
   @override
   Widget build(BuildContext context) {
+    /*
+      creazione della lista prodottiDispensa fornita dal provider ProdottoDispensaProvider. In questo modo la lista che si va a formare nella schermata Dispensa si va a creare in modo dinamico.
+    */
+    final prodottiDispensa =
+        Provider.of<ProdottoDispensaProvider>(context).prodottiDispensa;
     return Scaffold(
       appBar: AppBar(
         title: Text('DISPENSA'),
         centerTitle: true,
       ),
       body: ListView.builder(
-        itemCount: ProdottoDispensaProvider.prodottiDispensa.length,
+        itemCount: prodottiDispensa.length,
         itemBuilder: (context, index) {
-          final item = ProdottoDispensaProvider.prodottiDispensa[index];
+          final item = prodottiDispensa[index];
+          /*
+            Creo una card per  ogni prodotto in dispensa;
+            All'inizio la data di scadenza dei prodotti non è impostata;
+            tramite la proprietà onTap --> _navigaModificaProdotto, mi permette di apportare le modifiche ad un prodotto in dispensa
+          */
           return Card(
             child: ListTile(
               title: Row(
@@ -47,12 +63,15 @@ class _DispensaScreenState extends State<DispensaScreen> {
                 ],
               ),
               onTap: () {
-                _NavigazioneModificaProdotto(item);
+                _navigaModificaProdotto(context, item);
               },
             ),
           );
         },
       ),
+      /*
+        c'è anche la possibilità di aggiungere un prodotto manualmente nel caso in cui il prodotto non fosse stato inserito prima nella lista della spesa.
+      */
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _aggiungiProdotto(context);
@@ -85,7 +104,7 @@ class _DispensaScreenState extends State<DispensaScreen> {
                 final nuovoProdotto = ProdottoDispensa(
                   descrizioneProdotto: _descrizioneController.text,
                 );
-                _salvaProdotto(nuovoProdotto);
+                _salvaProdotto(context, nuovoProdotto);
                 Navigator.pop(context);
               },
               child: Text('Aggiungi'),
@@ -96,69 +115,28 @@ class _DispensaScreenState extends State<DispensaScreen> {
     );
   }
 
-  void _salvaProdotto(ProdottoDispensa nuovoProdotto) {
-    setState(() {
-      ProdottoDispensaProvider.prodottiDispensa.add(nuovoProdotto);
-    });
+  void _salvaProdotto(BuildContext context, ProdottoDispensa nuovoProdotto) {
+    final prodottoDispensaProvider =
+        Provider.of<ProdottoDispensaProvider>(context, listen: false);
+    prodottoDispensaProvider.aggiungiProdotto(nuovoProdotto);
   }
 
-  void _NavigazioneModificaProdotto(ProdottoDispensa prodotto) {
+  void _navigaModificaProdotto(
+      BuildContext context, ProdottoDispensa prodotto) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SchermataModificaProdotto(
           item: prodotto,
-          onSave: (elementoModificato) {
-            _aggiornaElemento(prodotto, elementoModificato);
-            if (elementoModificato.comprato) {
-              _aggiungiProdottoDispensa(elementoModificato);
-            } else {
-              _rimuoviProdottoDispensa(elementoModificato);
-            }
-          },
-          onDelete: () {
-            _cancellaElemento(prodotto);
-          },
         ),
       ),
     );
-  }
-
-  void _aggiungiProdottoDispensa(ProdottoDispensa prodotto) {
-    setState(() {
-      ProdottoDispensaProvider.prodottiDispensa.add(prodotto);
-    });
-  }
-
-  void _rimuoviProdottoDispensa(ProdottoDispensa prodotto) {
-    setState(() {
-      ProdottoDispensaProvider.prodottiDispensa.remove(prodotto);
-    });
-  }
-
-  void _aggiornaElemento(
-      ProdottoDispensa vecchioProdotto, ProdottoDispensa nuovoProdotto) {
-    setState(() {
-      final index =
-          ProdottoDispensaProvider.prodottiDispensa.indexOf(vecchioProdotto);
-      ProdottoDispensaProvider.prodottiDispensa[index] = nuovoProdotto;
-    });
-  }
-
-  void _cancellaElemento(ProdottoDispensa prodotto) {
-    setState(() {
-      ProdottoDispensaProvider.prodottiDispensa.remove(prodotto);
-    });
   }
 }
 
 class SchermataModificaProdotto extends StatefulWidget {
   final ProdottoDispensa item;
-  final Function(ProdottoDispensa) onSave;
-  final Function() onDelete;
-
-  SchermataModificaProdotto(
-      {required this.item, required this.onSave, required this.onDelete});
+  SchermataModificaProdotto({required this.item});
 
   @override
   _SchermataModificaProdottoState createState() =>
@@ -176,7 +154,7 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
     super.initState();
     _dataScadenzaController.text = widget.item.dataScadenza ?? '';
     _luogoAcquistoController.text = widget.item.luogoAcquisto ?? '';
-    _quantitaController.text = widget.item.quantitaupdate ?? '';
+    _quantitaController.text = widget.item.quantita;
     _prezzoAcquistoController.text = widget.item.prezzoAcquisto ?? '';
   }
 
@@ -212,16 +190,16 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                  onPressed: _salvaModifiche,
+                  onPressed: () {
+                    _salvaModifiche(context);
+                  },
                   child: Text('Salva'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    widget.onDelete();
-                    Navigator.pop(context);
+                    _eliminaProdotto(context);
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: Text('Annulla'),
+                  child: Text('Elimina'),
                 ),
               ],
             ),
@@ -231,15 +209,24 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
     );
   }
 
-  void _salvaModifiche() {
-    final elementoModificato = ProdottoDispensa(
+  void _salvaModifiche(BuildContext context) {
+    final prodottoModificato = ProdottoDispensa(
       descrizioneProdotto: widget.item.descrizioneProdotto,
       dataScadenza: _dataScadenzaController.text,
       luogoAcquisto: _luogoAcquistoController.text,
       quantitaupdate: _quantitaController.text,
       prezzoAcquisto: _prezzoAcquistoController.text,
     );
-    widget.onSave(elementoModificato);
+
+    final prodottoDispensaProvider =
+        Provider.of<ProdottoDispensaProvider>(context, listen: false);
+    prodottoDispensaProvider.aggiornaProdotto(widget.item, prodottoModificato);
     Navigator.pop(context);
+  }
+
+  void _eliminaProdotto(BuildContext context) {
+    final prodottoDispensaProvider =
+        Provider.of<ProdottoDispensaProvider>(context, listen: false);
+    prodottoDispensaProvider.rimuoviProdotto(widget.item.descrizioneProdotto);
   }
 }

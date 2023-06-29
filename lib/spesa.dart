@@ -147,7 +147,9 @@ class _SpesaScreenState extends State<SpesaScreen> {
                         onChanged: (value) {
                           setState(() {
                             item.comprato = value ?? false;
-                            aggiungiProdottoDispensa(item);
+                            shoppingItemList.setProdottoAcquistato(
+                                index - 1, value ?? false);
+                            aggiungiProdottoDispensa(context, item);
                           });
                         },
                       ),
@@ -177,17 +179,16 @@ class _SpesaScreenState extends State<SpesaScreen> {
     );
   }
 
-  void aggiungiProdottoDispensa(Product prodotto) {
-    setState(() {
-      if (prodotto.comprato) {
-        final prodottoDispensa =
-            ProdottoDispensa(descrizioneProdotto: prodotto.descrizioneProdotto);
-        ProdottoDispensaProvider.prodottiDispensa.add(prodottoDispensa);
-      } else {
-        ProdottoDispensaProvider.prodottiDispensa.removeWhere((element) =>
-            element.descrizioneProdotto == prodotto.descrizioneProdotto);
-      }
-    });
+  void aggiungiProdottoDispensa(BuildContext contex, Product prodotto) {
+    final prodottoDispensaProvider =
+        Provider.of<ProdottoDispensaProvider>(context, listen: false);
+    if (prodotto.comprato) {
+      final prodottoDispensa =
+          ProdottoDispensa(descrizioneProdotto: prodotto.descrizioneProdotto);
+      prodottoDispensaProvider.aggiungiProdotto(prodottoDispensa);
+    } else {
+      prodottoDispensaProvider.rimuoviProdotto(prodotto.descrizioneProdotto);
+    }
   }
 }
 

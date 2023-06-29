@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/prodottodispensaprovider.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
 import 'package:provider/provider.dart';
 import 'homepage.dart';
@@ -12,6 +13,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ShoppingListProvider()),
+        ChangeNotifierProvider(create: (_) => ProdottoDispensaProvider()),
       ],
       child: MyApp(),
     ),
