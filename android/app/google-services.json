@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "490016880198",
+    "firebase_url": "https://save-food-e4e4e-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "save-food-e4e4e",
+    "storage_bucket": "save-food-e4e4e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490016880198:android:ff62d18fafa7e2a7d0bc47",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "490016880198-qe8t6qdj2ofufm053ebvnt2agueq6s6t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYkhh8VB24Qr8eeyugnYBVotzvg8onsyk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "490016880198-qe8t6qdj2ofufm053ebvnt2agueq6s6t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "490016880198-7alh158quo4gbafo0gtc2h3e041tf8qr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterApplication1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

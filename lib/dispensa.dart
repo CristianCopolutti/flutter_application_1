@@ -5,6 +5,8 @@ import 'package:flutter_application_1/prodottodispensaprovider.dart';
 import 'package:flutter_application_1/product.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class DispensaScreen extends StatefulWidget {
   @override
@@ -144,18 +146,35 @@ class SchermataModificaProdotto extends StatefulWidget {
 }
 
 class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
-  TextEditingController _dataScadenzaController = TextEditingController();
   TextEditingController _luogoAcquistoController = TextEditingController();
   TextEditingController _quantitaController = TextEditingController();
   TextEditingController _prezzoAcquistoController = TextEditingController();
+  TextEditingController _dataScadenzaController = TextEditingController();
+  DateTime? _dataSelezionata;
 
   @override
   void initState() {
     super.initState();
-    _dataScadenzaController.text = widget.item.dataScadenza ?? '';
     _luogoAcquistoController.text = widget.item.luogoAcquisto ?? '';
     _quantitaController.text = widget.item.quantita;
     _prezzoAcquistoController.text = widget.item.prezzoAcquisto ?? '';
+    _dataScadenzaController.text = widget.item.dataScadenza ?? '';
+  }
+
+  Future<void> _selezionaData(BuildContext context) async {
+    final DateTime? data = await showDatePicker(
+      context: context,
+      initialDate: _dataSelezionata ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (data != null && data != _dataSelezionata) {
+      setState(() {
+        _dataSelezionata = data;
+        final dataFormattata = DateFormat('dd/MM/yyyy').format(data);
+        _dataScadenzaController.text = dataFormattata;
+      });
+    }
   }
 
   @override
@@ -171,19 +190,29 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
             Text('Descrizione: ${widget.item.descrizioneProdotto}'),
             TextFormField(
               controller: _dataScadenzaController,
-              decoration: InputDecoration(labelText: 'Data di scadenza'),
+              decoration: InputDecoration(
+                  labelText: 'Data di scadenza',
+                  prefixIcon: Icon(Icons.calendar_month_rounded)),
+              onTap: () {
+                _selezionaData(context);
+              },
             ),
             TextFormField(
               controller: _luogoAcquistoController,
-              decoration: InputDecoration(labelText: 'Luogo di acquisto'),
+              decoration: InputDecoration(
+                  labelText: 'Luogo di acquisto',
+                  prefixIcon: Icon(Icons.local_mall)),
             ),
             TextFormField(
               controller: _quantitaController,
-              decoration: InputDecoration(labelText: 'Quantità'),
+              decoration: InputDecoration(
+                  labelText: 'Quantità', prefixIcon: Icon(Icons.numbers)),
             ),
             TextFormField(
               controller: _prezzoAcquistoController,
-              decoration: InputDecoration(labelText: 'Prezzo di acquisto'),
+              decoration: InputDecoration(
+                  labelText: 'Prezzo di acquisto',
+                  prefixIcon: Icon(Icons.euro)),
             ),
             SizedBox(height: 16.0),
             Row(

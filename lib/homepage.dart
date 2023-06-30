@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/prodottodispensaprovider.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
 import 'package:provider/provider.dart';
 import 'main.dart';
@@ -11,6 +12,10 @@ class HomePage extends StatelessWidget {
     final shoppingItemList = Provider.of<ShoppingListProvider>(context);
     final shoppingItems = shoppingItemList.listaProdottiSpesa;
 
+    final listaProdottiDispensa =
+        Provider.of<ProdottoDispensaProvider>(context);
+    final listaDispensa = listaProdottiDispensa.prodottiDispensa;
+
     MyHomePageState? state = context.findAncestorStateOfType<MyHomePageState>();
 
     return Scaffold(
@@ -18,21 +23,17 @@ class HomePage extends StatelessWidget {
         title: Text("HOME"),
         centerTitle: true,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Expanded(
-            child: Container(),
-          ),
-          Container(
-            margin: EdgeInsets.only(bottom: 100.0),
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: GestureDetector(
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(height: 16.0),
+            GestureDetector(
               onTap: () {
                 state?.onItemTap(1);
               },
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.8,
+                margin: EdgeInsets.symmetric(horizontal: 16.0),
                 height: MediaQuery.of(context).size.height * 0.3,
                 child: Card(
                   elevation: 4.0,
@@ -119,8 +120,94 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ],
+            SizedBox(height: 16.0),
+            GestureDetector(
+              onTap: () {
+                state?.onItemTap(2);
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 16.0),
+                height: MediaQuery.of(context).size.height * 0.3,
+                child: Card(
+                  elevation: 4.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            "Prodotti nella dispensa",
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16.0),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: listaDispensa.length,
+                            itemBuilder: (context, index) {
+                              final item = listaDispensa[index];
+                              return Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.4,
+                                        child: Text(
+                                          item.descrizioneProdotto,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16.0,
+                                            color: Colors.black,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      SizedBox(width: 18.0),
+                                      Text(
+                                        "Scadenza",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 14.0,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(width: 4.0),
+                                      Text(
+                                        "${item.dataScadenza}",
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 2.0),
+                                  Divider(),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16.0),
+          ],
+        ),
       ),
     );
   }
