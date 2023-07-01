@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 16.0),
+                        SizedBox(height: 8.0),
                         Expanded(
                           child: ListView.builder(
                             itemCount: shoppingItems.length,
@@ -68,7 +68,7 @@ class HomePage extends StatelessWidget {
                                       Container(
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                0.4,
+                                                0.3,
                                         child: Text(
                                           item.descrizioneProdotto,
                                           style: TextStyle(
@@ -80,7 +80,7 @@ class HomePage extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      SizedBox(width: 18.0),
+                                      SizedBox(width: 12.0),
                                       Text(
                                         "Quantità:",
                                         style: TextStyle(
@@ -148,9 +148,10 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: 16.0),
+                        SizedBox(height: 8.0),
                         Expanded(
                           child: ListView.builder(
+                            shrinkWrap: true,
                             itemCount: listaDispensa.length,
                             itemBuilder: (context, index) {
                               final item = listaDispensa[index];
@@ -161,7 +162,7 @@ class HomePage extends StatelessWidget {
                                       Container(
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                0.4,
+                                                0.3,
                                         child: Text(
                                           item.descrizioneProdotto,
                                           style: TextStyle(
@@ -173,7 +174,7 @@ class HomePage extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      SizedBox(width: 18.0),
+                                      SizedBox(width: 12.0),
                                       Text(
                                         "Scadenza",
                                         style: TextStyle(

@@ -29,6 +29,14 @@ class _DispensaScreenState extends State<DispensaScreen> {
       appBar: AppBar(
         title: Text('DISPENSA'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.filter_list),
+            onPressed: () {
+              _mostraFiltro(context);
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: prodottiDispensa.length,
@@ -81,6 +89,41 @@ class _DispensaScreenState extends State<DispensaScreen> {
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  void _mostraFiltro(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Seleziona ordine di visualizzazione"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _applicaFiltro(context, 'asc');
+                    Navigator.pop(context);
+                  },
+                  child: Text("Ordine crescente"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _applicaFiltro(context, 'desc');
+                    Navigator.pop(context);
+                  },
+                  child: Text("Ordine decrescente"),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  void _applicaFiltro(BuildContext context, String order) {
+    final prodottiDispensa =
+        Provider.of<ProdottoDispensaProvider>(context, listen: false);
+    prodottiDispensa.ordinaProdottiPerScadenza(order);
   }
 
   void _aggiungiProdotto(BuildContext context) {
