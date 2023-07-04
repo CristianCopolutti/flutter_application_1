@@ -57,4 +57,34 @@ class ShoppingListProvider extends ChangeNotifier {
     saveShoppingList();
     notifyListeners();
   }
+
+  void selezionaTutto() {
+    for (var prodotto in listaProdottiSpesa) {
+      prodotto.comprato = true;
+    }
+    saveShoppingList();
+    notifyListeners();
+  }
+
+  void deselezionaTutto() {
+    for (var prodotto in listaProdottiSpesa) {
+      prodotto.comprato = false;
+    }
+    saveShoppingList();
+    notifyListeners();
+  }
+
+  void rimuoviLista() {
+    listaProdottiSpesa.clear();
+    saveShoppingList();
+    notifyListeners();
+  }
+
+  void spuntaTuttiProdotti(bool spuntato) {
+    for (var prodotto in listaProdottiSpesa) {
+      prodotto.comprato = false;
+    }
+    saveShoppingList();
+    notifyListeners();
+  }
 }

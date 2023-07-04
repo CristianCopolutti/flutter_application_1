@@ -176,7 +176,7 @@ class _DispensaScreenState extends State<DispensaScreen> {
   void _salvaProdotto(BuildContext context, ProdottoDispensa nuovoProdotto) {
     final prodottoDispensaProvider =
         Provider.of<ProdottoDispensaProvider>(context, listen: false);
-    prodottoDispensaProvider.aggiungiProdotto(nuovoProdotto);
+    prodottoDispensaProvider.aggiungiProdotto(context, nuovoProdotto);
   }
 
   void _navigaModificaProdotto(

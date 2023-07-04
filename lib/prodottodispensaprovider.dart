@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_application_1/prodottoDispensa.dart';
+import 'package:flutter_application_1/prodottostoricoprovider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,7 +12,7 @@ class ProdottoDispensaProvider with ChangeNotifier {
 
   List<ProdottoDispensa> get prodottiDispensa => _prodottiDispensa;
 
-  void aggiungiProdotto(ProdottoDispensa prodotto) {
+  void aggiungiProdotto(BuildContext context, ProdottoDispensa prodotto) {
     _prodottiDispensa.add(prodotto);
     notifyListeners();
     saveProdottiDispensa();
@@ -79,5 +82,11 @@ class ProdottoDispensaProvider with ChangeNotifier {
           .toList();
     }
     notifyListeners();
+  }
+
+  void rimuoviProdottiDeselezionati() {
+    _prodottiDispensa.removeWhere((prodotto) => !prodotto.comprato);
+    notifyListeners();
+    saveProdottiDispensa();
   }
 }

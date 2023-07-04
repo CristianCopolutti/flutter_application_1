@@ -16,6 +16,8 @@ class SpesaScreen extends StatefulWidget {
 }
 
 class _SpesaScreenState extends State<SpesaScreen> {
+  bool _selezionatoTutto = false;
+
   @override
   Widget build(BuildContext context) {
     /*
@@ -31,10 +33,20 @@ class _SpesaScreenState extends State<SpesaScreen> {
 
     final shoppingItems = shoppingItemList.listaProdottiSpesa;
 
+    final listaDispensa = Provider.of<ProdottoDispensaProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('LISTA DELLA SPESA'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.more_vert),
+            onPressed: () {
+              _mostraScelte(shoppingItemList, listaDispensa);
+            },
+          ),
+        ],
       ),
       /*
       Nel body inserisco una lista scrollabile;
@@ -145,7 +157,7 @@ class _SpesaScreenState extends State<SpesaScreen> {
                     Expanded(
                       flex: 1,
                       child: Checkbox(
-                        value: item.comprato ?? false,
+                        value: item.comprato,
                         onChanged: (value) {
                           setState(() {
                             item.comprato = value ?? false;
@@ -182,13 +194,63 @@ class _SpesaScreenState extends State<SpesaScreen> {
     );
   }
 
-  void aggiungiProdottoDispensa(BuildContext contex, Product prodotto) {
+  void _mostraScelte(ShoppingListProvider shoppingItemList,
+      ProdottoDispensaProvider listaDispensa) async {
+    final scelta = await showMenu(
+        context: context,
+        position: RelativeRect.fromLTRB(1000.0, 80.0, 0.0, 0.0),
+        items: [
+          PopupMenuItem(
+            value: 'selezionaTutto',
+            child: Text('Seleziona tutto'),
+          ),
+          PopupMenuItem(
+            value: 'deselezionaTutto',
+            child: Text('Deseleziona tutto'),
+          ),
+          PopupMenuItem(
+            value: 'eliminaTutto',
+            child: Text('Elimina prodotti'),
+          ),
+        ]);
+    if (scelta != null) {
+      if (scelta == 'selezionaTutto') {
+        setState(() {
+          _selezionatoTutto = true;
+          shoppingItemList.selezionaTutto();
+        });
+      } else if (scelta == 'deselezionaTutto') {
+        setState(() {
+          _selezionatoTutto = false;
+          shoppingItemList.deselezionaTutto();
+        });
+        listaDispensa.rimuoviProdottiDeselezionati();
+      } else if (scelta == 'eliminaTutto') {
+        setState(() {
+          _selezionatoTutto = false;
+          shoppingItemList.rimuoviLista();
+        });
+      }
+      if (_selezionatoTutto) {
+        List<Product> prodottiSelezionati = shoppingItemList.listaProdottiSpesa
+            .where((prodotto) => prodotto.comprato)
+            .toList();
+        for (Product prodotto in prodottiSelezionati) {
+          ProdottoDispensa prodottoDispensa = ProdottoDispensa(
+              descrizioneProdotto: prodotto.descrizioneProdotto);
+          listaDispensa.aggiungiProdotto(context, prodottoDispensa);
+        }
+      }
+    }
+  }
+
+  void aggiungiProdottoDispensa(BuildContext context, Product prodotto) {
     final prodottoDispensaProvider =
         Provider.of<ProdottoDispensaProvider>(context, listen: false);
     if (prodotto.comprato) {
       final prodottoDispensa =
           ProdottoDispensa(descrizioneProdotto: prodotto.descrizioneProdotto);
-      prodottoDispensaProvider.aggiungiProdotto(prodottoDispensa);
+      prodottoDispensaProvider.aggiungiProdotto(context, prodottoDispensa);
     } else {
       prodottoDispensaProvider.rimuoviProdotto(prodotto.descrizioneProdotto);
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/prodottodispensaprovider.dart';
+import 'package:flutter_application_1/prodottostoricoprovider.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +53,12 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State {
   PageController pageController = PageController();
-  List<Widget> pages = [HomePage(), SpesaScreen(), DispensaScreen(), Storico()];
+  List<Widget> pages = [
+    HomePage(),
+    SpesaScreen(),
+    DispensaScreen(),
+    StoricoScreen()
+  ];
 
   int selectIndex = 0;
 
