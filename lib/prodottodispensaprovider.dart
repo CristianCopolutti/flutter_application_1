@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/prodottoDispensa.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProdottoDispensaProvider with ChangeNotifier {
   List<ProdottoDispensa> _prodottiDispensa = [];
@@ -10,12 +12,14 @@ class ProdottoDispensaProvider with ChangeNotifier {
   void aggiungiProdotto(ProdottoDispensa prodotto) {
     _prodottiDispensa.add(prodotto);
     notifyListeners();
+    saveProdottiDispensa();
   }
 
   void rimuoviProdotto(String descrizioneProdotto) {
     _prodottiDispensa.removeWhere(
         (prodotto) => prodotto.descrizioneProdotto == descrizioneProdotto);
     notifyListeners();
+    saveProdottiDispensa();
   }
 
   void aggiornaProdotto(
@@ -24,6 +28,7 @@ class ProdottoDispensaProvider with ChangeNotifier {
     if (index != -1) {
       _prodottiDispensa[index] = prodottoModificato;
       notifyListeners();
+      saveProdottiDispensa();
     }
   }
 
@@ -53,6 +58,26 @@ class ProdottoDispensaProvider with ChangeNotifier {
       }
     });
 
+    notifyListeners();
+  }
+
+  void saveProdottiDispensa() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> jsonList = _prodottiDispensa
+        .map((prodotto) => jsonEncode(prodotto.toJson()))
+        .toList();
+    await prefs.setStringList('prodottiDispensa', jsonList);
+  }
+
+  Future<void> loadProdottiDispensa() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? jsonList = prefs.getStringList('prodottiDispensa');
+    if (jsonList != null) {
+      _prodottiDispensa = jsonList
+          .map((json) => ProdottoDispensa.fromJson(jsonDecode(json)))
+          .cast<ProdottoDispensa>()
+          .toList();
+    }
     notifyListeners();
   }
 }

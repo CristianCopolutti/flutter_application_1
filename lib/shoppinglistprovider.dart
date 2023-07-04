@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_application_1/product.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 //provider libreria che facilita la gestione dello stato dell'applicazione
 /*
@@ -10,20 +12,49 @@ import 'package:flutter_application_1/product.dart';
 */
 
 class ShoppingListProvider extends ChangeNotifier {
-  List<Product> listaProdottiSpesa = [];
+  List<Product> _shoppingList = [];
+  SharedPreferences? _prefs;
+
+  List<Product> get listaProdottiSpesa => _shoppingList;
+
+  ShoppingListProvider() {
+    loadShoppingList();
+  }
+
+  Future<void> loadShoppingList() async {
+    _prefs = await SharedPreferences.getInstance();
+    final jsonString = _prefs!.getString('shoppingList');
+
+    if (jsonString != null) {
+      final List<dynamic> jsonList = json.decode(jsonString);
+      _shoppingList = jsonList.map((item) => Product.fromJson(item)).toList();
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> saveShoppingList() async {
+    if (_prefs != null) {
+      final jsonString = json.encode(_shoppingList);
+      await _prefs!.setString('shoppingList', jsonString);
+    }
+  }
 
   void aggiungiProdotto(Product prodotto) {
     listaProdottiSpesa.add(prodotto);
+    saveShoppingList();
     notifyListeners();
   }
 
   void removeProduct(index) {
     listaProdottiSpesa.removeAt(index);
+    saveShoppingList();
     notifyListeners();
   }
 
   void setProdottoAcquistato(int index, bool acquistato) {
     listaProdottiSpesa[index].comprato = acquistato;
+    saveShoppingList();
     notifyListeners();
   }
 }

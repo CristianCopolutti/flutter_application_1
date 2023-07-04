@@ -21,4 +21,25 @@ class ProdottoDispensa extends Product {
     this.quantitaupdate,
     this.prezzoAcquisto,
   }) : super(descrizioneProdotto: descrizioneProdotto);
+
+  factory ProdottoDispensa.fromJson(Map<String, dynamic> json) {
+    return ProdottoDispensa(
+      descrizioneProdotto: json['descrizioneProdotto'],
+      dataScadenza: json['dataScadenza'],
+      luogoAcquisto: json['luogoAcquisto'],
+      quantitaupdate: json['quantitaupdate'],
+      prezzoAcquisto: json['prezzoAcquisto'],
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'descrizioneProdotto': descrizioneProdotto,
+      'dataScadenza': dataScadenza,
+      'luogoAcquisto': luogoAcquisto,
+      'quantitaupdate': quantitaupdate,
+      'prezzoAcquisto': prezzoAcquisto,
+    };
+  }
 }

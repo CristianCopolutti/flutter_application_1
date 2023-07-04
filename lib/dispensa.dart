@@ -18,11 +18,9 @@ class _DispensaScreenState: gestisce la schermata Dispensa
 */
 
 class _DispensaScreenState extends State<DispensaScreen> {
+  String _termineRicerca = '';
   @override
   Widget build(BuildContext context) {
-    /*
-      creazione della lista prodottiDispensa fornita dal provider ProdottoDispensaProvider. In questo modo la lista che si va a formare nella schermata Dispensa si va a creare in modo dinamico.
-    */
     final prodottiDispensa =
         Provider.of<ProdottoDispensaProvider>(context).prodottiDispensa;
     return Scaffold(
@@ -38,50 +36,65 @@ class _DispensaScreenState extends State<DispensaScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: prodottiDispensa.length,
-        itemBuilder: (context, index) {
-          final item = prodottiDispensa[index];
-          /*
-            Creo una card per  ogni prodotto in dispensa;
-            All'inizio la data di scadenza dei prodotti non è impostata;
-            tramite la proprietà onTap --> _navigaModificaProdotto, mi permette di apportare le modifiche ad un prodotto in dispensa
-          */
-          return Card(
-            child: ListTile(
-              title: Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      item.descrizioneProdotto,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16.0),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      item.dataScadenza ?? 'N/A',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              autofocus: false,
+              onChanged: (value) {
+                setState(() {
+                  _termineRicerca = value;
+                });
+              },
+              decoration: InputDecoration(
+                labelText: 'Cerca prodotto',
+                prefixIcon: Icon(Icons.search),
               ),
-              onTap: () {
-                _navigaModificaProdotto(context, item);
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: prodottiDispensa.length,
+              itemBuilder: (context, index) {
+                final item = prodottiDispensa[index];
+                if (_termineRicerca.isNotEmpty &&
+                    !item.descrizioneProdotto
+                        .toLowerCase()
+                        .contains(_termineRicerca.toLowerCase())) {
+                  return SizedBox.shrink();
+                }
+                return Card(
+                  child: ListTile(
+                      title: Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              item.descrizioneProdotto,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          SizedBox(width: 16.0),
+                          Expanded(
+                              flex: 2,
+                              child: Text(
+                                item.dataScadenza ?? 'N/A',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )),
+                        ],
+                      ),
+                      onTap: () {
+                        _navigaModificaProdotto(context, item);
+                      }),
+                );
               },
             ),
-          );
-        },
+          ),
+        ],
       ),
-      /*
-        c'è anche la possibilità di aggiungere un prodotto manualmente nel caso in cui il prodotto non fosse stato inserito prima nella lista della spesa.
-      */
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _aggiungiProdotto(context);
@@ -199,7 +212,7 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
   void initState() {
     super.initState();
     _luogoAcquistoController.text = widget.item.luogoAcquisto ?? '';
-    _quantitaController.text = widget.item.quantita;
+    _quantitaController.text = widget.item.quantitaupdate ?? '';
     _prezzoAcquistoController.text = widget.item.prezzoAcquisto ?? '';
     _dataScadenzaController.text = widget.item.dataScadenza ?? '';
   }

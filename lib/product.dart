@@ -19,4 +19,22 @@ class Product {
     this.unita = '',
     this.comprato = false,
   });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      descrizioneProdotto: json['descrizioneProdotto'] as String,
+      quantita: json['quantita'] as String,
+      unita: json['unita'] as String,
+      comprato: json['comprato'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'descrizioneProdotto': descrizioneProdotto,
+      'quantita': quantita,
+      'unita': unita,
+      'comprato': comprato,
+    };
+  }
 }

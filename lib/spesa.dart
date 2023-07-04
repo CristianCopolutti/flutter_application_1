@@ -120,6 +120,7 @@ class _SpesaScreenState extends State<SpesaScreen> {
                         initialValue: item.quantita,
                         onChanged: (value) {
                           item.quantita = value;
+                          shoppingItemList.saveShoppingList();
                         },
                       ),
                     ),
@@ -130,6 +131,7 @@ class _SpesaScreenState extends State<SpesaScreen> {
                         onChanged: (newValue) {
                           setState(() {
                             item.unita = newValue!;
+                            shoppingItemList.saveShoppingList();
                           });
                         },
                         items: <String>['', 'g', 'kg', 'l'].map((String value) {
@@ -150,6 +152,7 @@ class _SpesaScreenState extends State<SpesaScreen> {
                             shoppingItemList.setProdottoAcquistato(
                                 index - 1, value ?? false);
                             aggiungiProdottoDispensa(context, item);
+                            shoppingItemList.saveShoppingList();
                           });
                         },
                       ),

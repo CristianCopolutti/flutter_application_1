@@ -14,7 +14,8 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ShoppingListProvider()),
-        ChangeNotifierProvider(create: (_) => ProdottoDispensaProvider()),
+        ChangeNotifierProvider(
+            create: (_) => ProdottoDispensaProvider()..loadProdottiDispensa()),
       ],
       child: MyApp(),
     ),
