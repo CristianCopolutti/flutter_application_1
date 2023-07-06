@@ -1,14 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/prodottodispensaprovider.dart';
-import 'package:flutter_application_1/prodottostoricoprovider.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
+import 'package:flutter_application_1/storico.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'homepage.dart';
 import 'dispensa.dart';
 import 'spesa.dart';
-import 'storico.dart';
 
 void main() {
   runApp(
@@ -16,7 +15,9 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ShoppingListProvider()),
         ChangeNotifierProvider(
-            create: (_) => ProdottoDispensaProvider()..loadProdottiDispensa()),
+            create: (_) => ProdottoDispensaProvider()
+              ..loadProdottiDispensa()
+              ..loadProdottiStorico()),
       ],
       child: MyApp(),
     ),

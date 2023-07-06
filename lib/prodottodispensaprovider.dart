@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/prodottoDispensa.dart';
-import 'package:flutter_application_1/prodottostoricoprovider.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -9,13 +8,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ProdottoDispensaProvider with ChangeNotifier {
   List<ProdottoDispensa> _prodottiDispensa = [];
+  Map<String, List<ProdottoDispensa>> prodottiStoricoMap = {};
 
   List<ProdottoDispensa> get prodottiDispensa => _prodottiDispensa;
 
   void aggiungiProdotto(BuildContext context, ProdottoDispensa prodotto) {
     _prodottiDispensa.add(prodotto);
+
+    if (prodottiStoricoMap.containsKey(prodotto.descrizioneProdotto)) {
+      prodottiStoricoMap[prodotto.descrizioneProdotto]!.add(prodotto);
+    } else {
+      prodottiStoricoMap[prodotto.descrizioneProdotto] = [prodotto];
+    }
+
     notifyListeners();
     saveProdottiDispensa();
+    saveProdottiStorico();
   }
 
   void rimuoviProdotto(String descrizioneProdotto) {
@@ -25,13 +33,31 @@ class ProdottoDispensaProvider with ChangeNotifier {
     saveProdottiDispensa();
   }
 
+  void rimuoviProdottoStorico(String descrizioneProdotto) {
+    prodottiStoricoMap.remove(descrizioneProdotto);
+    notifyListeners();
+    saveProdottiStorico();
+  }
+
   void aggiornaProdotto(
       ProdottoDispensa item, ProdottoDispensa prodottoModificato) {
     final index = _prodottiDispensa.indexOf(item);
     if (index != -1) {
       _prodottiDispensa[index] = prodottoModificato;
+
+      // Aggiorna solo l'ultimo prodotto corrispondente nella lista dello storico
+      if (prodottiStoricoMap.containsKey(item.descrizioneProdotto)) {
+        final prodottiStorico = prodottiStoricoMap[item.descrizioneProdotto]!;
+        if (prodottiStorico.isNotEmpty) {
+          final ultimoProdotto = prodottiStorico.last;
+          ultimoProdotto.luogoAcquisto = prodottoModificato.luogoAcquisto;
+          ultimoProdotto.prezzoAcquisto = prodottoModificato.prezzoAcquisto;
+        }
+      }
+
       notifyListeners();
       saveProdottiDispensa();
+      saveProdottiStorico();
     }
   }
 
@@ -74,19 +100,53 @@ class ProdottoDispensaProvider with ChangeNotifier {
 
   Future<void> loadProdottiDispensa() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? jsonList = prefs.getStringList('prodottiDispensa');
-    if (jsonList != null) {
-      _prodottiDispensa = jsonList
+    List<String>? jsonListDispensa = prefs.getStringList('prodottiDispensa');
+
+    if (jsonListDispensa != null) {
+      _prodottiDispensa = jsonListDispensa
           .map((json) => ProdottoDispensa.fromJson(jsonDecode(json)))
-          .cast<ProdottoDispensa>()
           .toList();
     }
+
     notifyListeners();
+    loadProdottiStorico();
   }
 
   void rimuoviProdottiDeselezionati() {
     _prodottiDispensa.removeWhere((prodotto) => !prodotto.comprato);
     notifyListeners();
     saveProdottiDispensa();
+  }
+
+  void loadProdottiStorico() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? jsonListStorico = prefs.getStringList('prodottiStorico');
+
+    if (jsonListStorico != null) {
+      prodottiStoricoMap = {};
+      for (String json in jsonListStorico) {
+        ProdottoDispensa prodotto = ProdottoDispensa.fromJson(jsonDecode(json));
+        if (prodottiStoricoMap.containsKey(prodotto.descrizioneProdotto)) {
+          prodottiStoricoMap[prodotto.descrizioneProdotto]!.add(prodotto);
+        } else {
+          prodottiStoricoMap[prodotto.descrizioneProdotto] = [prodotto];
+        }
+      }
+    }
+
+    notifyListeners();
+  }
+
+  void saveProdottiStorico() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> jsonList = [];
+
+    prodottiStoricoMap.forEach((descrizione, prodotti) {
+      List<String> prodottiJsonList =
+          prodotti.map((prodotto) => jsonEncode(prodotto.toJson())).toList();
+      jsonList.addAll(prodottiJsonList);
+    });
+
+    await prefs.setStringList('prodottiStorico', jsonList);
   }
 }

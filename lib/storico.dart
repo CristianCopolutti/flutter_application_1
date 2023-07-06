@@ -1,96 +1,115 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/prodottostorico.dart';
-import 'package:flutter_application_1/prodottostoricoprovider.dart';
+import 'package:flutter_application_1/prodottoDispensa.dart';
+import 'package:flutter_application_1/prodottodispensaprovider.dart';
 import 'package:provider/provider.dart';
 
-class StoricoScreen extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => _StoricoScreenState();
-}
-
-class _StoricoScreenState extends State<StoricoScreen> {
+class StoricoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final prodottiDispensaProvider =
+        Provider.of<ProdottoDispensaProvider>(context);
+    final prodottiStorico = prodottiDispensaProvider.prodottiStoricoMap;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Storico'),
-        centerTitle: true,
       ),
-      body: Consumer<ProdottoStoricoProvider>(
-        builder: (context, prodottoStoricoProvider, _) {
-          final prodottiStorico = prodottoStoricoProvider.prodottiStorico;
-          return ListView.builder(
-            itemCount: prodottiStorico.length,
-            itemBuilder: (context, index) {
-              final prodotto = prodottiStorico[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SchermataDettaglioProdotto(
-                        prodotto: prodotto,
-                      ),
-                    ),
-                  );
-                },
-                child: Card(
-                  child: ListTile(
-                    title: Text(prodotto.descrizioneProdotto),
-                    subtitle:
-                        Text('Numero di acquisti: ${prodotto.entry.length}'),
-                  ),
-                ),
-              );
+      body: ListView.builder(
+        itemCount: prodottiStorico.length,
+        itemBuilder: (context, index) {
+          final keys = prodottiStorico.keys.toList();
+          final prodottoKey = keys[index];
+          final prodotti = prodottiStorico[prodottoKey]!;
+
+          return SwipeToDismiss(
+            prodottoKey: prodottoKey,
+            onTap: () {
+              _mostraDettagliProdotto(context, prodotti);
             },
+            onDismissed: (prodottoKey) {
+              if (prodottoKey != null) {
+                prodottiDispensaProvider.rimuoviProdottoStorico(prodottoKey);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Prodotto eliminato'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            child: Card(
+              child: ListTile(
+                title: Text(prodottoKey),
+              ),
+            ),
           );
         },
       ),
     );
   }
+
+  void _mostraDettagliProdotto(
+      BuildContext context, List<ProdottoDispensa> prodotti) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(prodotti[0].descrizioneProdotto),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: prodotti.map((prodotto) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Luogo Acquisto: ${prodotto.luogoAcquisto ?? ''}'),
+                    Text('Prezzo Acquisto: ${prodotto.prezzoAcquisto ?? ''}'),
+                    SizedBox(height: 8.0),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-class SchermataDettaglioProdotto extends StatelessWidget {
-  final ProdottoStorico prodotto;
+class SwipeToDismiss extends StatelessWidget {
+  final String prodottoKey;
+  final Widget child;
+  final Function onTap;
+  final Function(String) onDismissed;
 
-  SchermataDettaglioProdotto({required this.prodotto});
+  const SwipeToDismiss({
+    required this.prodottoKey,
+    required this.child,
+    required this.onTap,
+    required this.onDismissed,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Dettaglio Prodotto'),
+    return Dismissible(
+      key: UniqueKey(),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Descrizione: ${prodotto.descrizioneProdotto}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Acquisti:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: prodotto.entry.length,
-              itemBuilder: (context, index) {
-                final entry = prodotto.entry[index];
-                return ListTile(
-                  title: Text('Luogo: ${entry.luogoAcquisto}'),
-                  subtitle: Text('Prezzo: ${entry.prezzoAcquisto}'),
-                );
-              },
-            ),
-          ),
-        ],
+      onDismissed: (direction) {
+        onDismissed(prodottoKey);
+      },
+      child: GestureDetector(
+        onTap: () => onTap(),
+        child: child,
       ),
     );
   }
