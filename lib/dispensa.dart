@@ -128,7 +128,7 @@ class _DispensaScreenState extends State<DispensaScreen> {
               ],
             ),
       floatingActionButton: SizedBox(
-        width: 140, // Imposta la larghezza desiderata
+        width: 140,
         child: FloatingActionButton(
           onPressed: () {
             _aggiungiProdotto(context);

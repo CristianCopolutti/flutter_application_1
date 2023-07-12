@@ -51,7 +51,6 @@ class ProdottoDispensaProvider with ChangeNotifier {
     if (index != -1) {
       _prodottiDispensa[index] = prodottoModificato;
 
-      // Aggiorna solo l'ultimo prodotto corrispondente nella lista dello storico
       if (prodottiStoricoMap.containsKey(item.descrizioneProdotto)) {
         final prodottiStorico = prodottiStoricoMap[item.descrizioneProdotto]!;
         if (prodottiStorico.isNotEmpty) {
