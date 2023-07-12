@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         Locale("it", "IT"),
       ],
       debugShowCheckedModeBanner: false,
-      title: 'MiaApp',
+      title: 'SaveFood',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
