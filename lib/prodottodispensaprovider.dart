@@ -33,6 +33,12 @@ class ProdottoDispensaProvider with ChangeNotifier {
     saveProdottiDispensa();
   }
 
+  void rimuoviProdottoDispensa(ProdottoDispensa prodotto) {
+    _prodottiDispensa.remove(prodotto);
+    notifyListeners();
+    saveProdottiDispensa();
+  }
+
   void rimuoviProdottoStorico(String descrizioneProdotto) {
     prodottiStoricoMap.remove(descrizioneProdotto);
     notifyListeners();

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/prodottodispensaprovider.dart';
 import 'package:flutter_application_1/shoppinglistprovider.dart';
@@ -8,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'homepage.dart';
 import 'dispensa.dart';
 import 'spesa.dart';
+import 'notification_service.dart';
 
 void main() {
   runApp(
@@ -15,62 +15,71 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => ShoppingListProvider()),
         ChangeNotifierProvider(
-            create: (_) => ProdottoDispensaProvider()
-              ..loadProdottiDispensa()
-              ..loadProdottiStorico()),
+          create: (_) => ProdottoDispensaProvider()..loadProdottiDispensa(),
+        ),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      supportedLocales: [
-        const Locale("it", "IT"),
+      supportedLocales: const [
+        Locale("it", "IT"),
       ],
       debugShowCheckedModeBanner: false,
       title: 'MiaApp',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return MyHomePageState();
   }
 }
 
-class MyHomePageState extends State {
+class MyHomePageState extends State<MyHomePage> {
   PageController pageController = PageController();
   List<Widget> pages = [
-    HomePage(),
-    SpesaScreen(),
-    DispensaScreen(),
-    StoricoScreen()
+    const HomePage(),
+    const SpesaScreen(),
+    const DispensaScreen(),
+    const StoricoScreen(),
   ];
 
-  int selectIndex = 0;
+  int selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    NotificationService.initializeNotification(context);
+  }
 
   void onPageChanged(int index) {
     setState(() {
-      selectIndex = index;
+      selectedIndex = index;
     });
   }
 
-  void onItemTap(int selectedItems) {
-    pageController.jumpToPage(selectedItems);
+  void onItemTap(int selectedItem) {
+    pageController.jumpToPage(selectedItem);
   }
 
   @override
@@ -78,14 +87,14 @@ class MyHomePageState extends State {
     return Scaffold(
       body: PageView(
         controller: pageController,
-        children: pages,
         onPageChanged: onPageChanged,
+        children: pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         onTap: onItemTap,
-        currentIndex: selectIndex,
-        items: [
+        currentIndex: selectedIndex,
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: "Home",

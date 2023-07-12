@@ -32,12 +32,13 @@ dependencies:
     sdk: flutter
   provider: ^6.0.0
   http: ^0.13.5
-  firebase_core: ^2.14.0
-  firebase_database: ^10.2.3
   flutter_localizations:
     sdk: flutter 
   intl: ^0.18.0
   shared_preferences: ^2.0.7
+  awesome_notifications: ^0.6.19
+  flutter_html: ^3.0.0-alpha.1
+  flutter_local_notifications: ^15.1.0+1
 
   
   

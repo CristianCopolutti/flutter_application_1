@@ -8,6 +8,8 @@ import 'package:flutter_application_1/shoppinglistprovider.dart';
 import 'package:provider/provider.dart';
 
 class SpesaScreen extends StatefulWidget {
+  const SpesaScreen({super.key});
+
   @override
   /*
   in questo modo definisco il metodo createState(), il quale restituisce un'istanza di '_SpesaScreenState, la quale è l'oggetto di stato associato alla sottoclasse di 'StatefulWidget'.
@@ -21,7 +23,7 @@ class _SpesaScreenState extends State<SpesaScreen> {
   @override
   Widget build(BuildContext context) {
     /*
-    alla variabile shoppingItemList assegno l'istanza corrente di ShoppingListProvider. 
+    alla variabile shoppingItemList assegno l'istanza corrente di ShoppingListProvider.
     */
     final shoppingItemList = Provider.of<ShoppingListProvider>(context);
 
@@ -37,159 +39,204 @@ class _SpesaScreenState extends State<SpesaScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('LISTA DELLA SPESA'),
+        title: const Text('LISTA DELLA SPESA'),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert),
             onPressed: () {
               _mostraScelte(shoppingItemList, listaDispensa);
             },
           ),
         ],
       ),
-      /*
-      Nel body inserisco una lista scrollabile;
-      costruisce in modo dinamico gli elementi della lista
-      */
-      body: ListView.builder(
-        itemCount: shoppingItems.length + 1,
-        /*
-        itemBuilder è una funzione di callback che viene richiamata per ogni elemento della lista
-        */
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            // Header row
-            return Padding(
-              padding: EdgeInsets.only(left: 16.0),
-              child: DataTable(
-                columnSpacing: 10.0,
-                columns: const <DataColumn>[
-                  DataColumn(
-                    label: Text('Prodotto'),
-                  ),
-                  DataColumn(
-                    label: Text('Quantità'),
-                  ),
-                  DataColumn(
-                    label: Text('Unità'),
-                  ),
-                  DataColumn(
-                    label: Text(''),
-                  ),
-                ],
-                rows: [],
-              ),
-            );
-          }
-
-          final item = shoppingItems[index - 1];
-
-          return Dismissible(
-            key: UniqueKey(),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: EdgeInsets.only(right: 16.0),
-                  child: Icon(
-                    Icons.delete,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            onDismissed: (direction) {
-              setState(() {
-                shoppingItemList.removeProduct(index - 1);
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Prodotto eliminato'),
-                ),
-              );
-            },
-            child: Card(
-              child: ListTile(
-                title: Row(
+      body: shoppingItems.isEmpty
+          ? const Center(
+              child: Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        item.descrizioneProdotto,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      'Vuoi acquistare qualcosa?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
                       ),
                     ),
-                    SizedBox(width: 16.0),
-                    Expanded(
-                      flex: 1,
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        initialValue: item.quantita,
-                        onChanged: (value) {
-                          item.quantita = value;
-                          shoppingItemList.saveShoppingList();
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: DropdownButton<String>(
-                        value: item.unita,
-                        onChanged: (newValue) {
-                          setState(() {
-                            item.unita = newValue!;
-                            shoppingItemList.saveShoppingList();
-                          });
-                        },
-                        items: <String>['', 'g', 'kg', 'l'].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Checkbox(
-                        value: item.comprato,
-                        onChanged: (value) {
-                          setState(() {
-                            item.comprato = value ?? false;
-                            shoppingItemList.setProdottoAcquistato(
-                                index - 1, value ?? false);
-                            aggiungiProdottoDispensa(context, item);
-                            shoppingItemList.saveShoppingList();
-                          });
-                        },
+                    SizedBox(height: 8),
+                    Text(
+                      'Clicca il pulsante + per aggiungere prodotti',
+                      style: TextStyle(
+                        fontSize: 16,
                       ),
                     ),
                   ],
                 ),
               ),
+            )
+          /*
+      Nel body inserisco una lista scrollabile;
+      costruisce in modo dinamico gli elementi della lista
+      */
+          : ListView.builder(
+              itemCount: shoppingItems.length + 1,
+              /*
+        itemBuilder è una funzione di callback che viene richiamata per ogni elemento della lista
+        */
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  // Header row
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: DataTable(
+                      columnSpacing: 10.0,
+                      columns: const <DataColumn>[
+                        DataColumn(
+                          label: Text('Prodotto'),
+                        ),
+                        DataColumn(
+                          label: Text('Quantità'),
+                        ),
+                        DataColumn(
+                          label: Text('Unità'),
+                        ),
+                        DataColumn(
+                          label: Text(''),
+                        ),
+                      ],
+                      rows: const [],
+                    ),
+                  );
+                }
+
+                final item = shoppingItems[index - 1];
+
+                return Dismissible(
+                  key: UniqueKey(),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: Colors.red,
+                    child: const Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 16.0),
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  onDismissed: (direction) {
+                    setState(() {
+                      shoppingItemList.removeProduct(index - 1);
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Prodotto eliminato'),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    child: ListTile(
+                      title: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              item.descrizioneProdotto,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: TextFormField(
+                                  keyboardType: TextInputType.number,
+                                  initialValue: item.quantita,
+                                  onChanged: (value) {
+                                    item.quantita = value;
+                                    shoppingItemList.saveShoppingList();
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: DropdownButton<String>(
+                              value: item.unita,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  item.unita = newValue!;
+                                  shoppingItemList.saveShoppingList();
+                                });
+                              },
+                              items: <String>['', 'g', 'kg', 'l']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Checkbox(
+                              value: item.comprato,
+                              onChanged: (value) {
+                                setState(() {
+                                  item.comprato = value ?? false;
+                                  shoppingItemList.setProdottoAcquistato(
+                                      index - 1, value ?? false);
+                                  aggiungiProdottoDispensa(context, item);
+                                  shoppingItemList.saveShoppingList();
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddItemScreen(
-                aggiungiProdotto: (item) {
-                  shoppingItemList.aggiungiProdotto(item);
-                },
+      floatingActionButton: SizedBox(
+        width: 140,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddItemScreen(
+                  aggiungiProdotto: (item) {
+                    shoppingItemList.aggiungiProdotto(item);
+                  },
+                ),
               ),
-            ),
-          );
-        },
-        child: Icon(Icons.add),
+            );
+          },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(32),
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add),
+              SizedBox(width: 8),
+              Text('AGGIUNGI'),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -198,17 +245,17 @@ class _SpesaScreenState extends State<SpesaScreen> {
       ProdottoDispensaProvider listaDispensa) async {
     final scelta = await showMenu(
         context: context,
-        position: RelativeRect.fromLTRB(1000.0, 80.0, 0.0, 0.0),
+        position: const RelativeRect.fromLTRB(1000.0, 80.0, 0.0, 0.0),
         items: [
-          PopupMenuItem(
+          const PopupMenuItem(
             value: 'selezionaTutto',
             child: Text('Seleziona tutto'),
           ),
-          PopupMenuItem(
+          const PopupMenuItem(
             value: 'deselezionaTutto',
             child: Text('Deseleziona tutto'),
           ),
-          PopupMenuItem(
+          const PopupMenuItem(
             value: 'eliminaTutto',
             child: Text('Elimina prodotti'),
           ),
@@ -260,7 +307,8 @@ class _SpesaScreenState extends State<SpesaScreen> {
 class AddItemScreen extends StatefulWidget {
   final Function(Product) aggiungiProdotto;
 
-  AddItemScreen({required this.aggiungiProdotto});
+  const AddItemScreen({Key? key, required this.aggiungiProdotto})
+      : super(key: key);
 
   @override
   _AddItemScreenState createState() => _AddItemScreenState();
@@ -269,10 +317,15 @@ class AddItemScreen extends StatefulWidget {
 class _AddItemScreenState extends State<AddItemScreen> {
   final TextEditingController _textController = TextEditingController();
   List<String> searchResults = [];
+  bool isSearching = false;
 
   Future<void> searchProduct(String productName) async {
+    setState(() {
+      isSearching = true;
+    });
+
     var url = Uri.parse(
-        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=$productName&search_simple=1&action=process&json=1&lc=it&lc_products=it&');
+        'https://world.openfoodfacts.org/cgi/search.pl?search_terms=$productName&search_simple=1&action=process&json=1&lc=it&lc_products=it');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -282,10 +335,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
         searchResults = products
             .map((product) => product['product_name'] as String)
             .toList();
+        isSearching = false;
       });
     } else {
       setState(() {
         searchResults = [];
+        isSearching = false;
       });
     }
   }
@@ -294,10 +349,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Aggiungi Prodotto'),
+        title: const Text('Aggiungi Prodotto'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
@@ -305,8 +360,13 @@ class _AddItemScreenState extends State<AddItemScreen> {
               onChanged: (value) {
                 searchProduct(value);
               },
-              decoration: InputDecoration(labelText: 'Prodotto'),
+              decoration: const InputDecoration(labelText: 'Prodotto'),
             ),
+            if (isSearching)
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CircularProgressIndicator(),
+              ),
             Expanded(
               child: ListView.builder(
                 itemCount: searchResults.length,
@@ -323,7 +383,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 },
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
                 final String productName = _textController.text.trim();
@@ -333,7 +393,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   Navigator.pop(context);
                 }
               },
-              child: Text('Aggiungi Manualmente'),
+              child: const Text('Aggiungi Manualmente'),
             ),
           ],
         ),

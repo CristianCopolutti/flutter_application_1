@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/prodottoDispensa.dart';
 import 'package:flutter_application_1/prodottodispensaprovider.dart';
-import 'package:flutter_application_1/prodottodispensaprovider.dart';
-import 'package:flutter_application_1/product.dart';
-import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 class DispensaScreen extends StatefulWidget {
+  const DispensaScreen({super.key});
+
   @override
   State<StatefulWidget> createState() => _DispensaScreenState();
 }
@@ -25,81 +23,128 @@ class _DispensaScreenState extends State<DispensaScreen> {
         Provider.of<ProdottoDispensaProvider>(context).prodottiDispensa;
     return Scaffold(
       appBar: AppBar(
-        title: Text('DISPENSA'),
+        title: const Text('DISPENSA'),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.filter_list),
+            icon: const Icon(Icons.filter_list),
             onPressed: () {
               _mostraFiltro(context);
             },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              autofocus: false,
-              onChanged: (value) {
-                setState(() {
-                  _termineRicerca = value;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: 'Cerca prodotto',
-                prefixIcon: Icon(Icons.search),
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: prodottiDispensa.length,
-              itemBuilder: (context, index) {
-                final item = prodottiDispensa[index];
-                if (_termineRicerca.isNotEmpty &&
-                    !item.descrizioneProdotto
-                        .toLowerCase()
-                        .contains(_termineRicerca.toLowerCase())) {
-                  return SizedBox.shrink();
-                }
-                return Card(
-                  child: ListTile(
-                      title: Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              item.descrizioneProdotto,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          SizedBox(width: 16.0),
-                          Expanded(
-                              flex: 2,
-                              child: Text(
-                                item.dataScadenza ?? 'N/A',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )),
-                        ],
+      body: prodottiDispensa.isEmpty
+          ? const Center(
+              child: Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Inserisci il tuo prodotto',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
                       ),
-                      onTap: () {
-                        _navigaModificaProdotto(context, item);
-                      }),
-                );
-              },
+                    ),
+                    SizedBox(height: 8),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'Clicca il pulsante + per aggiungere prodotti oppure spunta un prodotto presente nella tua lista della spesa per inserirlo in dispensa',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          /*
+      Nel body inserisco una lista scrollabile;
+      costruisce in modo dinamico gli elementi della lista
+      */
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: TextField(
+                    autofocus: false,
+                    onChanged: (value) {
+                      setState(() {
+                        _termineRicerca = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Cerca prodotto',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: prodottiDispensa.length,
+                    itemBuilder: (context, index) {
+                      final item = prodottiDispensa[index];
+                      if (_termineRicerca.isNotEmpty &&
+                          !item.descrizioneProdotto
+                              .toLowerCase()
+                              .contains(_termineRicerca.toLowerCase())) {
+                        return const SizedBox.shrink();
+                      }
+                      return Card(
+                        child: ListTile(
+                            title: Row(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    item.descrizioneProdotto,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                const SizedBox(width: 16.0),
+                                Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      item.dataScadenza ?? 'N/A',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
+                              ],
+                            ),
+                            onTap: () {
+                              _navigaModificaProdotto(context, item);
+                            }),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
+      floatingActionButton: SizedBox(
+        width: 140, // Imposta la larghezza desiderata
+        child: FloatingActionButton(
+          onPressed: () {
+            _aggiungiProdotto(context);
+          },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(32),
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _aggiungiProdotto(context);
-        },
-        child: Icon(Icons.add),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add),
+              SizedBox(width: 8),
+              Text('AGGIUNGI'),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -109,7 +154,7 @@ class _DispensaScreenState extends State<DispensaScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Seleziona ordine di visualizzazione"),
+            title: const Text("Seleziona ordine di visualizzazione"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -118,14 +163,14 @@ class _DispensaScreenState extends State<DispensaScreen> {
                     _applicaFiltro(context, 'asc');
                     Navigator.pop(context);
                   },
-                  child: Text("Ordine crescente"),
+                  child: const Text("Ordine crescente"),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     _applicaFiltro(context, 'desc');
                     Navigator.pop(context);
                   },
-                  child: Text("Ordine decrescente"),
+                  child: const Text("Ordine decrescente"),
                 ),
               ],
             ),
@@ -143,29 +188,29 @@ class _DispensaScreenState extends State<DispensaScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        TextEditingController _descrizioneController = TextEditingController();
+        TextEditingController descrizioneController = TextEditingController();
         return AlertDialog(
-          title: Text('Aggiungi prodotto'),
+          title: const Text('Aggiungi prodotto'),
           content: TextFormField(
-            controller: _descrizioneController,
-            decoration: InputDecoration(labelText: 'Descrizione'),
+            controller: descrizioneController,
+            decoration: const InputDecoration(labelText: 'Descrizione'),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Annulla'),
+              child: const Text('Annulla'),
             ),
             TextButton(
               onPressed: () {
                 final nuovoProdotto = ProdottoDispensa(
-                  descrizioneProdotto: _descrizioneController.text,
+                  descrizioneProdotto: descrizioneController.text,
                 );
                 _salvaProdotto(context, nuovoProdotto);
                 Navigator.pop(context);
               },
-              child: Text('Aggiungi'),
+              child: const Text('Aggiungi'),
             ),
           ],
         );
@@ -194,7 +239,7 @@ class _DispensaScreenState extends State<DispensaScreen> {
 
 class SchermataModificaProdotto extends StatefulWidget {
   final ProdottoDispensa item;
-  SchermataModificaProdotto({required this.item});
+  const SchermataModificaProdotto({super.key, required this.item});
 
   @override
   _SchermataModificaProdottoState createState() =>
@@ -202,10 +247,12 @@ class SchermataModificaProdotto extends StatefulWidget {
 }
 
 class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
-  TextEditingController _luogoAcquistoController = TextEditingController();
-  TextEditingController _quantitaController = TextEditingController();
-  TextEditingController _prezzoAcquistoController = TextEditingController();
-  TextEditingController _dataScadenzaController = TextEditingController();
+  final TextEditingController _luogoAcquistoController =
+      TextEditingController();
+  final TextEditingController _quantitaController = TextEditingController();
+  final TextEditingController _prezzoAcquistoController =
+      TextEditingController();
+  final TextEditingController _dataScadenzaController = TextEditingController();
   DateTime? _dataSelezionata;
 
   @override
@@ -237,16 +284,16 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Modifica Prodotto'),
+        title: const Text('Modifica Prodotto'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Text('Descrizione: ${widget.item.descrizioneProdotto}'),
             TextFormField(
               controller: _dataScadenzaController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   labelText: 'Data di scadenza',
                   prefixIcon: Icon(Icons.calendar_month_rounded)),
               onTap: () {
@@ -255,22 +302,22 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
             ),
             TextFormField(
               controller: _luogoAcquistoController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   labelText: 'Luogo di acquisto',
                   prefixIcon: Icon(Icons.local_mall)),
             ),
             TextFormField(
               controller: _quantitaController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   labelText: 'Quantità', prefixIcon: Icon(Icons.numbers)),
             ),
             TextFormField(
               controller: _prezzoAcquistoController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   labelText: 'Prezzo di acquisto',
                   prefixIcon: Icon(Icons.euro)),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -278,13 +325,14 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
                   onPressed: () {
                     _salvaModifiche(context);
                   },
-                  child: Text('Salva'),
+                  child: const Text('Salva'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _eliminaProdotto(context);
+                    _eliminaProdotto(context, widget.item);
+                    Navigator.pop(context);
                   },
-                  child: Text('Elimina'),
+                  child: const Text('Elimina'),
                 ),
               ],
             ),
@@ -309,9 +357,9 @@ class _SchermataModificaProdottoState extends State<SchermataModificaProdotto> {
     Navigator.pop(context);
   }
 
-  void _eliminaProdotto(BuildContext context) {
+  void _eliminaProdotto(BuildContext context, ProdottoDispensa prodotto) {
     final prodottoDispensaProvider =
         Provider.of<ProdottoDispensaProvider>(context, listen: false);
-    prodottoDispensaProvider.rimuoviProdotto(widget.item.descrizioneProdotto);
+    prodottoDispensaProvider.rimuoviProdottoDispensa(prodotto);
   }
 }
